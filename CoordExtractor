@@ -1,0 +1,24 @@
+class CoordExtractor:
+    def __init__(self,path):
+        self.x = []
+        self.y = []
+        self.z = []
+        self.time = []
+        file = open(path,"r")
+        lignes = file.readlines()
+        for l in lignes:
+            cells = l.split(',')
+            if(len(cells) <= 4):
+                continue
+            tempx = float(cells[2].replace(' ',""))
+            tempy = float(cells[3].replace(' ',""))
+            tempz = float(cells[4].replace(' ',""))
+            time = cells[1].replace('00',"")
+            time = time.replace('0000',"")
+            time = time.replace(':',"")
+            time = time.replace('.',"")
+            time = time.replace('AD',"")
+            self.x.append(tempx)
+            self.y.append(tempy)
+            self.z.append(tempz)
+            self.time.append(time)
