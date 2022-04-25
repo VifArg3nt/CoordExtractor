@@ -1,0 +1,135 @@
+from tkinter import *
+from CoordExtractor import *
+from datetime import date 
+import time
+
+myWindow = Tk()
+myWindow.title("Trajectoire de la sonde Voyager 2")
+
+# Variable
+i = 0
+# Sun's radius 
+rS = 20
+# Off set
+off_set = 5
+# color
+E = "green"        #Earth
+U = "cyan"         #Uranus
+S = "orangered"    #Saturn
+N = "mediumblue"   #Neptune
+J = "sienna"       #Jupiter
+V = "snow"         #Voyager_2
+
+(screenWidth, screenHeight) = (4000, 1000)
+space = Frame(myWindow)
+space.pack()
+SSolaire = Canvas(space, width=screenWidth, height=screenHeight,backgroun = "black")
+SSolaire.pack()
+
+Label(SSolaire,text = "Sun",bg = "black",fg = "yellow",font = (19)).place(x= 100,y = 100)
+Label(SSolaire,text = "Voyager 2",bg = "black",fg = V,font = (19)).place(x= 100,y = 125)
+Label(SSolaire,text = "Earth",bg = "black",fg = E,font = (19)).place(x= 100,y = 150)
+Label(SSolaire,text = "Jupiter",bg = "black",fg = J,font = (19)).place(x= 100,y = 175)
+Label(SSolaire,text = "Saturn",bg = "black",fg = S,font = (19)).place(x= 100,y = 200)
+Label(SSolaire,text = "Uranus",bg = "black",fg = U,font = (19)).place(x= 100,y = 225)
+Label(SSolaire,text = "Neptune",bg = "black",fg = N,font = (19)).place(x= 100,y = 250)
+
+
+
+# coord soleil
+(x,y) = (2650/2,680/2)
+# centre soleil
+(xs,ys) = ((2*x+rS)/2,(2*y+rS)/2)
+
+# objet soleil
+Sun = SSolaire.create_oval(x,y,x + rS,y + rS,fill = "yellow")
+
+# Trajectoire totale 
+
+# échelle
+r = 19
+# nb day voyage
+v = 8533
+k = 11090
+# space btw each point
+w = 50
+# taille planete + objet qui se déplace + taille voyager 2
+h = 15
+hv = 5
+q = 5
+
+
+#coordonées
+extractor1 = CoordExtractor("donnée_Terre.txt")
+extractor2 = CoordExtractor("donnée_Neptune.txt")
+extractor3 = CoordExtractor("donnée_Saturn.txt")
+extractor4 = CoordExtractor("donnée_Jupiter.txt")
+extractor5 = CoordExtractor("donnée_Uranus.txt")
+extractor6 = CoordExtractor("donnée_voyager_2.txt")
+
+#Premiere position 
+c = 3 #ajustement
+Earth = SSolaire.create_oval(extractor1.y[0]*r+xs,extractor1.x[0]*r+ys,extractor1.y[0]*r + xs+h,extractor1.x[0]*r + ys+h,fill = E,tag = "Earth")
+Neptune = SSolaire.create_oval(extractor2.y[0]*r+xs-c,extractor2.x[0]*r+ys-c,extractor2.y[0]*r + xs+h-c,extractor2.x[0]*r + ys+h-c,fill = N,tag = "Neptune")
+Saturn = SSolaire.create_oval(extractor3.y[1826]*r+xs,extractor3.x[1826]*r+ys,extractor3.y[1826]*r + xs+h,extractor3.x[1826]*r + ys+h,fill = S,tag = "Saturn")
+Jupiter = SSolaire.create_oval(extractor4.y[0]*r+xs-c,extractor4.x[0]*r+ys-c,extractor4.y[0]*r + xs+h-c,extractor4.x[0]*r + ys+h-c,fill = J,tag = "Jupiter")
+Uranus = SSolaire.create_oval(extractor5.y[0]*r+xs-c,extractor5.x[0]*r+ys-c,extractor5.y[0]*r + xs+h-c,extractor5.x[0]*r + ys+h-c,fill = U,tag = "Uranus")
+Voyager_2 = SSolaire.create_oval(extractor6.y[0]*r+xs,extractor6.x[0]*r+ys,extractor6.y[0]*r + xs+q,extractor6.x[0]*r + ys+q,fill = V,tag = "Voyager_2")
+
+#fonction pour déssiner la trajectoire totale
+def trajectory(extract,m,t,v):
+    X = []
+    for i in range (v):
+        X.append(extract.x[i])
+    Y = []
+    for j in range (v):
+        Y.append(extract.y[j])
+    for u in range(0,v,t):
+        if u+t<v:
+            lien = SSolaire.create_line((Y[u]*r+xs,X[u]*r+ys),(Y[u+t]*r+xs,X[u+t]*r+ys),fill = m,width = 2)
+        
+
+
+trajectory(extractor1,E,w,v)
+trajectory(extractor2,N,w,v)
+trajectory(extractor3,S,w,k)
+trajectory(extractor4,J,w,v)
+trajectory(extractor5,U,w,v)
+
+list_points_time = []
+while i+1<8533:
+    i = i+10
+    list_points_time.append(i)
+    
+def delete():
+    SSolaire.delete("Saturn")
+    SSolaire.delete("Earth")
+    SSolaire.delete("Jupiter")
+    SSolaire.delete("Uranus")
+    SSolaire.delete("Neptune")    
+
+def compteur():
+    i = extractor6.time.pop(0)
+    Label(SSolaire,text = i,bg = "black",fg = "snow",font = (20)).place(x= 80,y = 50)
+    my_button.after(2, compteur)  
+        
+def drawn():
+    global list_points
+    i= list_points_time.pop(0)    
+    Voyager_2 = SSolaire.create_oval(extractor6.y[i]*r+xs-off_set,extractor6.x[i]*r+ys-off_set,extractor6.y[i]*r + xs+q-off_set,extractor6.x[i]*r + ys+q-off_set,fill = V)
+    Earth = SSolaire.create_oval(extractor1.y[i]*r+xs-off_set,extractor1.x[i]*r+ys-off_set,extractor1.y[i]*r + xs+h-off_set,extractor1.x[i]*r + ys+h-off_set,fill = E,tag = "Earth")
+    Jupiter = SSolaire.create_oval(extractor4.y[i]*r+xs-off_set,extractor4.x[i]*r+ys-off_set,extractor4.y[i]*r + xs+h-off_set,extractor4.x[i]*r + ys+h-off_set,fill = J,tag = "Jupiter")
+    Saturn = SSolaire.create_oval(extractor3.y[i+1826]*r+xs-off_set,extractor3.x[i+1826]*r+ys-off_set,extractor3.y[i+1826]*r + xs+h-off_set,extractor3.x[i+1826]*r + ys+h-off_set,fill = S,tag = "Saturn")
+    Uranus = SSolaire.create_oval(extractor5.y[i]*r+xs-off_set,extractor5.x[i]*r+ys-off_set,extractor5.y[i]*r + xs+h-off_set,extractor5.x[i]*r + ys+h-off_set,fill = U,tag = "Uranus")
+    Neptune = SSolaire.create_oval(extractor2.y[i]*r+xs-off_set,extractor2.x[i]*r+ys-off_set,extractor2.y[i]*r + xs+h-off_set,extractor2.x[i]*r + ys+h-off_set,fill = N,tag = "Neptune")
+    my_button.after(80,delete)  
+    my_button.after(80,drawn)  
+    
+
+    
+# déplacement de la sonde 
+my_button = Button(SSolaire, text="Example")
+my_button.after(1000,drawn)    
+my_button.after(1000,compteur)   
+
+myWindow.mainloop()
